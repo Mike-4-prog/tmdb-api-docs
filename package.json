@@ -1,6 +1,17 @@
 {
+  "name": "tmdb-docs",
+  "version": "1.0.0",
+  "description": "TMDB API Documentation",
+  "private": true,
+  "scripts": {
+    "start": "npx mint dev"
+  },
   "devDependencies": {
-    "@mintlify/cli": "^4.0.820",
+    "@mintlify/cli": "^4.0.857",
     "puppeteer": "^24.34.0"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
+
