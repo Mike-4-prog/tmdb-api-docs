@@ -1,5 +1,6 @@
 {
   "devDependencies": {
-    "@mintlify/cli": "^4.0.836"
+    "@mintlify/cli": "^4.0.820",
+    "puppeteer": "^24.34.0"
   }
 }
