@@ -1,0 +1,109 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "TMDB API Documentation",
+
+  "colors": {
+    "primary": "#12B6DC",
+    "light": "#12B6DC",
+    "dark": "#12B6DC"
+  },
+
+  "favicon": "/favicon/favicon.svg",
+
+  "logo": {
+    "light": "/logo/light-logo.svg",
+    "dark": "/logo/dark-logo.svg"
+  },
+
+  "styles": [
+    "/styles/global.css"
+  ],
+
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Home",
+        "pages": ["home"]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Getting started",
+            "pages": [
+              "api-reference/getting-started/introduction",
+              "api-reference/getting-started/obtain-api-key",
+              "api-reference/getting-started/authentication",
+              "api-reference/getting-started/endpoints-overview",
+              "api-reference/getting-started/error-codes-rate-limits"
+            ]
+          },
+          {
+            "group": "Movies",
+            "pages": [
+              "api-reference/movies/search-movies",
+              "api-reference/movies/get-popular-movies",
+              "api-reference/movies/get-movie-details",
+              "api-reference/movies/get-trending-movies",
+              "api-reference/movies/get-movie-genres"
+            ]
+          },
+          {
+            "group": "Lists",
+            "pages": [
+              "api-reference/lists/create-list",
+              "api-reference/lists/get-list-details",
+              "api-reference/lists/delete-list"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Quick Reference",
+        "groups": [
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/wrappers",
+              "guides/glossary",
+              "guides/faqs",
+              "guides/miscellaneous",
+              "guides/changelog"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  "navbar": {
+    "links": [
+      {
+        "label": "TMDB Website",
+        "href": "https://www.themoviedb.org"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Get API Key",
+      "href": "https://www.themoviedb.org/settings/api"
+    }
+  },
+
+  "footer": {
+    "socials": {
+      "github": "https://github.com/tmdb"
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+

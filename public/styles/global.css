@@ -1,0 +1,228 @@
+/* styles/global.css - FIXED VERSION */
+
+/* =========================================================
+   TMDB API Documentation - Global Styles
+   ========================================================= */
+
+/* CSS Variables */
+:root {
+  --primary: #12B6DC;
+  --primary-light: #12B6DC;
+  --primary-dark: #12B6DC;
+  --background-light: #FEFEFE;
+  --background-dark: #01070C;
+}
+
+/* Light theme */
+[data-theme="light"] {
+  --background: var(--background-light);
+  --text-color: #333333;
+  --card-bg: #ffffff;
+  --border-color: #e9ecef;
+  --nav-inactive: #666666;
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+  --background: var(--background-dark);
+  --text-color: #ffffff;
+  --card-bg: #1a1a1a;
+  --border-color: #333333;
+  --nav-inactive: #b0b0b0;
+}
+
+/* ---------------------------------------------------------
+   BASE STYLES
+   --------------------------------------------------------- */
+body {
+  background-color: var(--background) !important;
+  color: var(--text-color) !important;
+}
+
+/* ---------------------------------------------------------
+   TOP NAVIGATION TABS - FIXED
+   --------------------------------------------------------- */
+/* Default state for ALL tabs - gray/white */
+.navbar a,
+header a,
+[role="navigation"] a,
+.mint-tab {
+  color: var(--nav-inactive) !important;
+  opacity: 0.9 !important;
+  transition: color 0.2s ease !important;
+}
+
+/* HOVER: Only the specific tab being hovered */
+.navbar a:hover,
+header a:hover,
+[role="navigation"] a:hover,
+.mint-tab:hover {
+  color: #12B6DC !important;
+  opacity: 1 !important;
+}
+
+/* ACTIVE: Only the current page tab */
+.navbar a[aria-current="page"],
+header a[aria-current="page"],
+[role="navigation"] a[aria-current="page"],
+.mint-tab-active {
+  color: #12B6DC !important;
+  border-bottom: 2px solid #12B6DC !important;
+  opacity: 1 !important;
+}
+
+/* ---------------------------------------------------------
+   SIDEBAR - FIXED
+   --------------------------------------------------------- */
+/* Default sidebar links */
+.sidebar a,
+aside a {
+  color: var(--nav-inactive) !important;
+  background-color: transparent !important;
+  transition: all 0.2s ease !important;
+  border-radius: 4px !important;
+  padding: 6px 12px !important;
+  display: block !important;
+  margin: 2px 0 !important;
+}
+
+/* HOVER: Only the specific sidebar link being hovered */
+.sidebar a:hover,
+aside a:hover {
+  color: #12B6DC !important;
+  background-color: rgba(18, 182, 220, 0.1) !important;
+}
+
+/* ACTIVE: Only the current sidebar link */
+.sidebar a[aria-current="page"],
+aside a[aria-current="page"],
+.sidebar .active > a {
+  color: #12B6DC !important;
+  background-color: rgba(18, 182, 220, 0.15) !important;
+  font-weight: 500 !important;
+}
+
+/* ---------------------------------------------------------
+   CARDS - BLUE HOVER RESTORED
+   --------------------------------------------------------- */
+.mint-card {
+  border-top: 4px solid #12B6DC !important;
+  border-radius: 8px !important;
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  transition: all 0.3s ease !important;
+  height: 100% !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* Card hover effect - blue glow */
+.mint-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 8px 25px rgba(18, 182, 220, 0.15) !important;
+  border-color: #12B6DC !important;
+}
+
+/* Card title link styling */
+.mint-card a {
+  color: var(--text-color) !important;
+  text-decoration: none !important;
+}
+
+.mint-card a:hover {
+  color: #12B6DC !important;
+}
+
+/* ---------------------------------------------------------
+   BUTTONS
+   --------------------------------------------------------- */
+button,
+a.button-primary,
+.mintlify-button,
+.navbar-primary-button {
+  background-color: #12B6DC !important;
+  border-color: #12B6DC !important;
+  color: white !important;
+  border-radius: 6px !important;
+  padding: 0.5rem 1rem !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+button:hover,
+a.button-primary:hover,
+.mintlify-button:hover,
+.navbar-primary-button:hover {
+  background-color: #0d8bf0 !important;
+  border-color: #0d8bf0 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* ---------------------------------------------------------
+   HOME PAGE SPECIFIC
+   --------------------------------------------------------- */
+/* Intro section */
+.intro-content {
+  text-align: center;
+  margin: 2em;
+}
+
+.intro-content h1 {
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.intro-content p {
+  margin-top: 0.5em;
+  font-size: 28px;
+  color: #12B6DC;
+  font-weight: 500;
+}
+
+.intro-cards {
+  margin: 0 2em;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Card container */
+.mint-card-group {
+  gap: 1.5rem !important;
+}
+
+/* ---------------------------------------------------------
+   SEARCH BAR (if you have one)
+   --------------------------------------------------------- */
+input[type="search"],
+.search-bar {
+  border: 1px solid var(--border-color) !important;
+  border-radius: 6px !important;
+  padding: 8px 12px !important;
+  transition: border-color 0.2s ease !important;
+}
+
+input[type="search"]:focus,
+.search-bar:focus {
+  border-color: #12B6DC !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(18, 182, 220, 0.2) !important;
+}
+
+/* Mintlify fallback theme selectors */
+html:not(.dark) {
+  --background: var(--background-light);
+  --text-color: #333333;
+  --card-bg: #ffffff;
+  --border-color: #e9ecef;
+  --nav-inactive: #666666;
+}
+
+html.dark {
+  --background: var(--background-dark);
+  --text-color: #ffffff;
+  --card-bg: #1a1a1a;
+  --border-color: #333333;
+  --nav-inactive: #b0b0b0;
+}

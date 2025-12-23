@@ -1,0 +1,907 @@
+openapi: 3.0.3
+info:
+  title: The Movie Database (TMDB) API
+  description: |
+    # The Movie Database (TMDB) API Documentation
+    
+    Comprehensive REST API for accessing movie data, including:
+    - Movie search and discovery
+    - Detailed movie information
+    - Trending and popular content
+    - Genre metadata
+    - User list management
+    
+    ## Authentication
+    This API uses API key authentication. You can obtain a free API key from [TMDB](https://www.themoviedb.org/settings/api).
+    
+    ## Rate Limiting
+    - 50 requests per 10 seconds
+    - 500 requests per day (for free tier)
+    
+    ## Base URL
+    All endpoints are relative to: `https://api.themoviedb.org/3`
+  version: 1.0.0
+  contact:
+    name: TMDB API Support
+    url: https://www.themoviedb.org/documentation/api
+    email: support@themoviedb.org
+  license:
+    name: MIT
+    url: https://www.themoviedb.org/documentation/api/terms-of-use
+
+servers:
+  - url: https://api.themoviedb.org/3
+    description: TMDB API production server
+
+paths:
+  /search/movie:
+    get:
+      tags:
+        - Movies
+      summary: Search Movies
+      description: |
+        Search for movies by title, keyword, or phrase. Returns paginated results with movie details.
+        
+        **Example Use Cases:**
+        - Building movie search functionality
+        - Auto-complete suggestions
+        - Content discovery features
+      operationId: searchMovies
+      parameters:
+        - name: query
+          in: query
+          required: true
+          description: |
+            Search query for movie titles. Can include:
+            - Movie titles: "Inception"
+            - Keywords: "superhero"
+            - Phrases: "action adventure"
+          schema:
+            type: string
+            example: "Inception"
+        - name: language
+          in: query
+          description: ISO 639-1 language code for translated metadata
+          schema:
+            type: string
+            default: "en-US"
+            example: "en-US"
+        - name: page
+          in: query
+          description: Page number for paginated results (20 items per page)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 1
+            example: 1
+        - name: include_adult
+          in: query
+          description: Include adult content in results
+          schema:
+            type: boolean
+            default: false
+            example: false
+      responses:
+        '200':
+          description: Successful movie search
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieSearchResponse'
+              examples:
+                successfulSearch:
+                  summary: Successful movie search
+                  value:
+                    page: 1
+                    results:
+                      - adult: false
+                        backdrop_path: "/hZkgoQYus5vegHoetLkCJzb17zJ.jpg"
+                        genre_ids: [18, 53]
+                        id: 550
+                        original_language: "en"
+                        original_title: "Fight Club"
+                        overview: "A ticking-time-bomb insomniac and a slippery soap salesman channel primal male aggression into a shocking new form of therapy."
+                        popularity: 16.558
+                        poster_path: "/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg"
+                        release_date: "1999-10-15"
+                        title: "Fight Club"
+                        video: false
+                        vote_average: 8.438
+                        vote_count: 30991
+                    total_pages: 32
+                    total_results: 633
+        '401':
+          description: Unauthorized - Invalid API key
+          content:
+            application/json:
+              example:
+                success: false
+                status_code: 7
+                status_message: "Invalid API key: You must be granted a valid key."
+        '404':
+          description: No results found for search query
+          content:
+            application/json:
+              example:
+                page: 1
+                results: []
+                total_pages: 0
+                total_results: 0
+
+  /movie/popular:
+    get:
+      tags:
+        - Movies
+      summary: Get Popular Movies
+      description: |
+        Retrieve currently popular movies from TMDB. This list is updated daily based on user interactions and site activity.
+        
+        **Data Source:** Popularity algorithm considers user ratings, views, and social media activity.
+      operationId: getPopularMovies
+      parameters:
+        - name: language
+          in: query
+          description: ISO 639-1 language code for translated data
+          schema:
+            type: string
+            default: "en-US"
+            example: "en-US"
+        - name: page
+          in: query
+          description: Page number for paginated results
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 1
+            example: 1
+        - name: region
+          in: query
+          description: ISO 3166-1 region code for regional popularity
+          schema:
+            type: string
+            example: "US"
+      responses:
+        '200':
+          description: Successful retrieval of popular movies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieSearchResponse'
+              examples:
+                popularMovies:
+                  summary: Popular movies response
+                  value:
+                    page: 1
+                    results:
+                      - adult: false
+                        backdrop_path: "/iZLqwEwUViJdSkGVjePGhxYzbDb.jpg"
+                        genre_ids: [878, 53]
+                        id: 755898
+                        original_language: "en"
+                        original_title: "War of the Worlds"
+                        overview: "Will Radford is a top analyst for Homeland Security who tracks potential threats..."
+                        popularity: 601.137
+                        poster_path: "/yvirUYrva23IudARHn3mMGVxWqM.jpg"
+                        release_date: "2025-07-29"
+                        title: "War of the Worlds"
+                        video: false
+                        vote_average: 4.354
+                        vote_count: 505
+                    total_pages: 500
+                    total_results: 10000
+
+  /movie/{movie_id}:
+    get:
+      tags:
+        - Movies
+      summary: Get Movie Details
+      description: |
+        Retrieve comprehensive details for a specific movie including cast, crew, production details, and financial information.
+        
+        **Includes:** Title, overview, release date, runtime, genres, production companies, budget, revenue, and ratings.
+      operationId: getMovieDetails
+      parameters:
+        - name: movie_id
+          in: path
+          required: true
+          description: |
+            Unique TMDB movie identifier.
+            
+            **Example IDs:**
+            - 550: Fight Club
+            - 680: Pulp Fiction
+            - 13: Forrest Gump
+          schema:
+            type: integer
+            minimum: 1
+            example: 550
+        - name: language
+          in: query
+          description: ISO 639-1 language code for translated data
+          schema:
+            type: string
+            default: "en-US"
+            example: "en-US"
+        - name: append_to_response
+          in: query
+          description: |
+            Additional data to include in response. Multiple values can be comma-separated.
+            
+            **Options:** credits, videos, images, recommendations, similar
+          schema:
+            type: string
+            example: "credits,videos"
+      responses:
+        '200':
+          description: Successful retrieval of movie details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieDetail'
+              examples:
+                movieDetails:
+                  summary: Movie details for Fight Club
+                  value:
+                    adult: false
+                    backdrop_path: "/hZkgoQYus5vegHoetLkCJzb17zJ.jpg"
+                    belongs_to_collection: null
+                    budget: 63000000
+                    genres:
+                      - id: 18
+                        name: "Drama"
+                      - id: 53
+                        name: "Thriller"
+                    homepage: "http://www.foxmovies.com/movies/fight-club"
+                    id: 550
+                    imdb_id: "tt0137523"
+                    origin_country: ["US"]
+                    original_language: "en"
+                    original_title: "Fight Club"
+                    overview: "A ticking-time-bomb insomniac and a slippery soap salesman channel primal male aggression into a shocking new form of therapy."
+                    popularity: 16.558
+                    poster_path: "/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg"
+                    production_companies:
+                      - id: 711
+                        logo_path: "/tEiIH5QesdheJmDAqQwvtN60727.png"
+                        name: "Fox 2000 Pictures"
+                        origin_country: "US"
+                    production_countries:
+                      - iso_3166_1: "US"
+                        name: "United States of America"
+                    release_date: "1999-10-15"
+                    revenue: 100853753
+                    runtime: 139
+                    spoken_languages:
+                      - english_name: "English"
+                        iso_639_1: "en"
+                        name: "English"
+                    status: "Released"
+                    tagline: "Mischief. Mayhem. Soap."
+                    title: "Fight Club"
+                    video: false
+                    vote_average: 8.438
+                    vote_count: 30991
+        '404':
+          description: Movie not found
+          content:
+            application/json:
+              example:
+                success: false
+                status_code: 34
+                status_message: "The resource you requested could not be found."
+
+  /trending/movie/{time_window}:
+    get:
+      tags:
+        - Movies
+      summary: Get Trending Movies
+      description: |
+        Retrieve currently trending movies based on recent user engagement, searches, and social activity.
+        
+        **Trending Algorithm:** Considers recent views, searches, and social media mentions within the specified time window.
+      operationId: getTrendingMovies
+      parameters:
+        - name: time_window
+          in: path
+          required: true
+          description: |
+            Time window for trending data calculation.
+            
+            **Options:**
+            - `day`: Last 24 hours
+            - `week`: Last 7 days
+          schema:
+            type: string
+            enum: [day, week]
+            example: day
+        - name: language
+          in: query
+          description: ISO 639-1 language code for translated data
+          schema:
+            type: string
+            default: "en-US"
+            example: "en-US"
+        - name: page
+          in: query
+          description: Page number for paginated results
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 1
+            example: 1
+      responses:
+        '200':
+          description: Successful retrieval of trending movies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieSearchResponse'
+              examples:
+                trendingMovies:
+                  summary: Trending movies for the day
+                  value:
+                    page: 1
+                    results:
+                      - adult: false
+                        backdrop_path: "/l8pwO23MCvqYumzozpxynCNfck1.jpg"
+                        id: 967941
+                        title: "Wicked: For Good"
+                        original_title: "Wicked: For Good"
+                        overview: "As an angry mob rises against the Wicked Witch, Glinda and Elphaba will need to come together one final time."
+                        poster_path: "/si9tolnefLSUKaqQEGz1bWArOaL.jpg"
+                        media_type: "movie"
+                        genre_ids: [10749, 14, 12]
+                        popularity: 68.883
+                        release_date: "2025-11-16"
+                        video: false
+                        vote_average: 5.381
+                        vote_count: 42
+                    total_pages: 500
+                    total_results: 10000
+
+  /genre/movie/list:
+    get:
+      tags:
+        - Movies
+      summary: Get Movie Genres
+      description: |
+        Retrieve the complete list of official movie genres used by TMDB for categorizing movies.
+        
+        **Usage:** Map genre IDs from movie objects to human-readable names for display and filtering.
+      operationId: getMovieGenres
+      parameters:
+        - name: language
+          in: query
+          description: ISO 639-1 language code for translated genre names
+          schema:
+            type: string
+            default: "en-US"
+            example: "en-US"
+      responses:
+        '200':
+          description: Successful retrieval of genre list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  genres:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Genre'
+              examples:
+                genreList:
+                  summary: Complete genre list
+                  value:
+                    genres:
+                      - id: 28
+                        name: "Action"
+                      - id: 12
+                        name: "Adventure"
+                      - id: 16
+                        name: "Animation"
+                      - id: 35
+                        name: "Comedy"
+                      - id: 80
+                        name: "Crime"
+                      - id: 99
+                        name: "Documentary"
+                      - id: 18
+                        name: "Drama"
+                      - id: 10751
+                        name: "Family"
+                      - id: 14
+                        name: "Fantasy"
+                      - id: 36
+                        name: "History"
+                      - id: 27
+                        name: "Horror"
+                      - id: 10402
+                        name: "Music"
+                      - id: 9648
+                        name: "Mystery"
+                      - id: 10749
+                        name: "Romance"
+                      - id: 878
+                        name: "Science Fiction"
+                      - id: 10770
+                        name: "TV Movie"
+                      - id: 53
+                        name: "Thriller"
+                      - id: 10752
+                        name: "War"
+                      - id: 37
+                        name: "Western"
+
+  /list:
+    post:
+      tags:
+        - Lists
+      summary: Create List
+      description: |
+        Create a new custom movie list. 
+        
+        **⚠️ Permission Requirements:**
+        - Valid API key with **write permissions**
+        - Authenticated user session
+        - Standard read-only keys will receive 403 errors
+        
+        **Getting Write Access:**
+        Apply for elevated permissions through TMDB's API access form.
+      operationId: createList
+      requestBody:
+        required: true
+        description: List creation parameters
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: Name of the movie list
+                  minLength: 1
+                  maxLength: 100
+                  example: "My All-Time Favorite Movies"
+                description:
+                  type: string
+                  description: Detailed description of the list's purpose
+                  maxLength: 1000
+                  example: "A curated collection of cinematic masterpieces that have stood the test of time."
+                language:
+                  type: string
+                  description: ISO 639-1 language code for the list
+                  default: "en"
+                  example: "en"
+            examples:
+              createListExample:
+                summary: Example list creation
+                value:
+                  name: "Summer Blockbuster Marathon"
+                  description: "Action-packed summer movies for a weekend binge-watch"
+                  language: "en"
+      responses:
+        '201':
+          description: List created successfully
+          content:
+            application/json:
+              example:
+                status_message: "The item/record was created successfully."
+                success: true
+                status_code: 1
+                list_id: 123456
+        '401':
+          description: Unauthorized - Authentication required
+          content:
+            application/json:
+              example:
+                success: false
+                status_code: 3
+                status_message: "Authentication failed: You do not have permissions to access the service."
+        '403':
+          description: Forbidden - Read-only API key
+          content:
+            application/json:
+              example:
+                success: false
+                status_code: 3
+                status_message: "Authentication failed: You do not have permissions to access the service."
+
+  /list/{list_id}:
+    get:
+      tags:
+        - Lists
+      summary: Get List Details
+      description: |
+        Retrieve comprehensive information about a specific movie list including its contents, metadata, and creator information.
+        
+        **Public Access:** This endpoint works with standard read-only API keys and doesn't require authentication for public lists.
+      operationId: getListDetails
+      parameters:
+        - name: list_id
+          in: path
+          required: true
+          description: |
+            Unique identifier of the list.
+            
+            **Example Lists:**
+            - 1: "The Marvel Universe" (Official TMDB list)
+            - 8205516: "Official Top 250 Narrative Feature Films"
+          schema:
+            type: string
+            example: "1"
+        - name: language
+          in: query
+          description: ISO 639-1 language code for translated data
+          schema:
+            type: string
+            default: "en-US"
+            example: "en-US"
+        - name: page
+          in: query
+          description: Page number for paginated results (20 movies per page)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+            example: 1
+      responses:
+        '200':
+          description: Successful retrieval of list details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListDetail'
+              examples:
+                listDetails:
+                  summary: Marvel Universe list details
+                  value:
+                    created_by: "Travis Bell"
+                    description: "The idea behind this list is to collect the live action comic book movies from within the Marvel franchise."
+                    favorite_count: 0
+                    id: "1"
+                    iso_639_1: "en"
+                    item_count: 69
+                    items:
+                      - adult: false
+                        backdrop_path: "/wSdWEc1G3OUWg8HAzNLqOZ9Gd43.jpg"
+                        id: 986056
+                        title: "Thunderbolts*"
+                        original_title: "Thunderbolts*"
+                        overview: "When finding themselves ensnared in a death trap..."
+                        poster_path: "/hqcexYHbiTBfDIdDWxrxPtVndBX.jpg"
+                        media_type: "movie"
+                        genre_ids: [28, 878, 12]
+                        popularity: 21.552
+                        release_date: "2025-04-30"
+                        video: false
+                        vote_average: 7.3
+                        vote_count: 2881
+                    name: "The Marvel Universe"
+                    page: 1
+                    poster_path: null
+                    total_pages: 4
+                    total_results: 69
+        '404':
+          description: List not found
+          content:
+            application/json:
+              example:
+                success: false
+                status_code: 34
+                status_message: "The resource you requested could not be found."
+    delete:
+      tags:
+        - Lists
+      summary: Delete List
+      description: |
+        Permanently delete a movie list.
+        
+        **⚠️ Permission Requirements:**
+        - Valid API key with **write permissions**
+        - Authenticated user session
+        - Must be the list owner or have admin privileges
+      operationId: deleteList
+      parameters:
+        - name: list_id
+          in: path
+          required: true
+          description: Unique identifier of the list to delete
+          schema:
+            type: string
+            example: "123456"
+      responses:
+        '200':
+          description: List deleted successfully
+          content:
+            application/json:
+              example:
+                status_message: "The item/record was deleted successfully."
+                success: true
+                status_code: 13
+        '401':
+          description: Unauthorized - Authentication required
+          content:
+            application/json:
+              example:
+                success: false
+                status_code: 3
+                status_message: "Authentication failed: You do not have permissions to access the service."
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              example:
+                success: false
+                status_code: 3
+                status_message: "Authentication failed: You do not have permissions to access the service."
+        '404':
+          description: List not found
+          content:
+            application/json:
+              example:
+                success: false
+                status_code: 34
+                status_message: "The resource you requested could not be found."
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      name: api_key
+      in: query
+      description: |
+        Your TMDB API key for authentication.
+        
+        **Getting an API Key:**
+        1. Create account at [TMDB](https://www.themoviedb.org/)
+        2. Go to Settings → API
+        3. Request API key
+        4. Use in requests as `?api_key=YOUR_API_KEY`
+        
+        **Write Permissions:** Standard keys are read-only. Apply for write permissions through TMDB's API access form.
+
+  schemas:
+    MovieSearchResponse:
+      type: object
+      description: Paginated response for movie searches and listings
+      properties:
+        page:
+          type: integer
+          description: Current page number
+          example: 1
+        results:
+          type: array
+          description: Array of movie objects
+          items:
+            $ref: '#/components/schemas/Movie'
+        total_pages:
+          type: integer
+          description: Total number of pages available
+          example: 500
+        total_results:
+          type: integer
+          description: Total number of movies matching the query
+          example: 10000
+
+    Movie:
+      type: object
+      description: Basic movie information
+      properties:
+        id:
+          type: integer
+          description: Unique TMDB movie identifier
+          example: 550
+        title:
+          type: string
+          description: Movie title
+          example: "Fight Club"
+        overview:
+          type: string
+          description: Movie plot summary
+          example: "A ticking-time-bomb insomniac and a slippery soap salesman channel primal male aggression into a shocking new form of therapy."
+        poster_path:
+          type: string
+          description: Path to movie poster image (relative to TMDB image base URL)
+          example: "/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg"
+        backdrop_path:
+          type: string
+          description: Path to movie backdrop image
+          example: "/hZkgoQYus5vegHoetLkCJzb17zJ.jpg"
+        release_date:
+          type: string
+          format: date
+          description: Movie release date (YYYY-MM-DD)
+          example: "1999-10-15"
+        vote_average:
+          type: number
+          format: float
+          description: Average user rating (0-10 scale)
+          minimum: 0
+          maximum: 10
+          example: 8.438
+        vote_count:
+          type: integer
+          description: Number of user ratings
+          example: 30991
+        genre_ids:
+          type: array
+          description: Array of genre IDs
+          items:
+            type: integer
+          example: [18, 53]
+        popularity:
+          type: number
+          format: float
+          description: Popularity score based on user activity
+          example: 16.558
+        adult:
+          type: boolean
+          description: Indicates if the movie is adult content
+          example: false
+        video:
+          type: boolean
+          description: Indicates if the movie has video content
+          example: false
+
+    MovieDetail:
+      allOf:
+        - $ref: '#/components/schemas/Movie'
+        - type: object
+          properties:
+            belongs_to_collection:
+              type: object
+              nullable: true
+              description: Collection information if movie is part of a series
+            budget:
+              type: integer
+              description: Production budget in USD
+              example: 63000000
+            genres:
+              type: array
+              description: Detailed genre information
+              items:
+                $ref: '#/components/schemas/Genre'
+            homepage:
+              type: string
+              description: Official movie website
+              example: "http://www.foxmovies.com/movies/fight-club"
+            imdb_id:
+              type: string
+              description: IMDb identifier
+              example: "tt0137523"
+            production_companies:
+              type: array
+              description: Companies involved in production
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  logo_path:
+                    type: string
+                    nullable: true
+                  origin_country:
+                    type: string
+            production_countries:
+              type: array
+              description: Countries of production
+              items:
+                type: object
+                properties:
+                  iso_3166_1:
+                    type: string
+                  name:
+                    type: string
+            revenue:
+              type: integer
+              description: Total revenue in USD
+              example: 100853753
+            runtime:
+              type: integer
+              description: Movie runtime in minutes
+              example: 139
+            spoken_languages:
+              type: array
+              description: Languages spoken in the movie
+              items:
+                type: object
+                properties:
+                  english_name:
+                    type: string
+                  iso_639_1:
+                    type: string
+                  name:
+                    type: string
+            status:
+              type: string
+              description: Release status
+              enum: [Rumored, Planned, In Production, Post Production, Released, Canceled]
+              example: "Released"
+            tagline:
+              type: string
+              description: Movie tagline
+              example: "Mischief. Mayhem. Soap."
+
+    Genre:
+      type: object
+      description: Movie genre information
+      properties:
+        id:
+          type: integer
+          description: Unique genre identifier
+          example: 28
+        name:
+          type: string
+          description: Genre name
+          example: "Action"
+
+    ListDetail:
+      type: object
+      description: Detailed information about a movie list
+      properties:
+        created_by:
+          type: string
+          description: Username of the list creator
+          example: "Travis Bell"
+        description:
+          type: string
+          description: List description
+          example: "The idea behind this list is to collect the live action comic book movies from within the Marvel franchise."
+        favorite_count:
+          type: integer
+          description: Number of users who favorited the list
+          example: 0
+        id:
+          type: string
+          description: Unique list identifier
+          example: "1"
+        iso_639_1:
+          type: string
+          description: Language code for the list
+          example: "en"
+        item_count:
+          type: integer
+          description: Total number of movies in the list
+          example: 69
+        items:
+          type: array
+          description: Movies contained in the list
+          items:
+            $ref: '#/components/schemas/Movie'
+        name:
+          type: string
+          description: List name
+          example: "The Marvel Universe"
+        page:
+          type: integer
+          description: Current page number
+          example: 1
+        poster_path:
+          type: string
+          nullable: true
+          description: Path to list poster image
+        total_pages:
+          type: integer
+          description: Total number of pages
+          example: 4
+        total_results:
+          type: integer
+          description: Total number of movies in the list
+          example: 69
+
+security:
+  - ApiKeyAuth: []
+
+tags:
+  - name: Movies
+    description: Endpoints for searching, browsing, and retrieving movie data including details, popular content, and trending movies.
+  - name: Lists
+    description: Endpoints for creating, managing, and retrieving user-generated movie lists. Write operations require elevated permissions.
