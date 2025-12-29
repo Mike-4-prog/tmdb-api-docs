@@ -1,11 +1,13 @@
 {
   "name": "tmdb-docs",
-  "private": true,
   "version": "1.0.0",
+  "private": true,
   "scripts": {
-    "vercel-build": "mintlify build"
+    "dev": "mintlify dev",
+    "build": "mintlify export --out-dir public"
   },
   "devDependencies": {
     "@mintlify/cli": "^4.0.859"
   }
 }
+
